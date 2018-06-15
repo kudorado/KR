@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿
 using UnityEngine;
 using System.IO;
 #if UNITY_EDITOR
@@ -36,7 +35,7 @@ namespace KR
 			//EditorUtility.FocusProjectWindow ();
 
 		}
-		[MenuItem("Ea/Documents", false, -1)]
+		[MenuItem("KR/Documents", false, -1)]
 		public static void OpenDocument()
 		{
 			Application.OpenURL("https://eaunity.wordpress.com/docs");

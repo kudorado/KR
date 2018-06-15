@@ -1,36 +1,42 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
-using System.IO;
 using System.Text;
-using System.Reflection;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
 #pragma warning disable
-namespace KR{
-	public class EaAudio : KR.ScriptableSingleton<EaAudio>
+
+
+namespace KR
+{
+	[System.Serializable]
+	public struct AudioData
+	{
+		public string key;
+		public AudioClip clip;
+	}
+	public enum AudioCategory{
+	    SoundEffect,
+        BackgroundMusic,
+	}
+	public class Audio : KR.ScriptableSingleton<Audio>
 	{
 
-		const string defaultResourcePath = "Assets/Ea/Audio/Resources/";
-		const string accessModify = "public";
-		const string type = " enum ";
-		const string className = " EaAudioList";
-		const string fileType = ".cs";
-        
+		const string defaultResourcePath = "Assets/KR/Audio/Resources/";
+	
 #if UNITY_EDITOR
 
-		[MenuItem("Ea/Audio/Init")]
+		[MenuItem("KR/Audio/Init")]
 		public static void CreateInitiator()
 		{
 			KR.Scriptable.CreateInitiator<AudioInitiator>();
 		}
 
-		[MenuItem("Ea/Audio/Settings")]
+		[MenuItem("KR/Audio/Settings")]
 		public static void CreateAsset()
 		{
-			KR.Scriptable.CreateAsset<EaAudio>(defaultResourcePath);
+			KR.Scriptable.CreateAsset<Audio>(defaultResourcePath);
 		}
 
 
@@ -38,55 +44,65 @@ namespace KR{
 #endif
 
 
-		public List<AudioClip> audioList = new List<AudioClip>();
-		[SerializeField]
-		private EaAudioList generatedAudio;
+		public List<AudioData> audioList = new List<AudioData>();
 
-		public AudioSource bgm;
-		public static AudioSource source { get; set; }
+
+		public AudioSource backgrounMusicdConfig, soundEffectConfig;
+        //[]
+		//public string generated;
+		public static AudioSource soundEffect { get; set; }
 		public static AudioSource backgroundMusic { get; set; }
 
 		public override void OnInitialized()
 		{
 			base.OnInitialized();
 
-			source = new GameObject(typeof(EaAudio).Name).AddComponent<AudioSource>();
-			backgroundMusic = Instantiate(bgm);
+			soundEffect = soundEffectConfig ? Instantiate(soundEffectConfig) :  new GameObject("SoundEffect").AddComponent<AudioSource>();
+			backgroundMusic = backgrounMusicdConfig ? Instantiate(backgrounMusicdConfig) : new GameObject("BackgroundMusic").AddComponent<AudioSource>();
 			DontDestroyOnLoad(backgroundMusic.gameObject);
-			DontDestroyOnLoad(source);
+			DontDestroyOnLoad(soundEffect.gameObject);
 		}
 #if UNITY_EDITOR
 
 		[Button]
 		private void GenerateAudio()
 		{
-			StringBuilder builder = new StringBuilder(accessModify + type + className);
+			StringBuilder builder = new StringBuilder("public enum GeneratedAudio ");
 			builder.AppendLine(" { ");
 			for (int i = 0; i < audioList.Count; i++)
 			{
-				if (audioList[i] != null)
+				if (audioList[i].clip != null && !string.IsNullOrEmpty(audioList[i].key))
 				{
-					builder.AppendLine(audioList[i].name + ",");
+					builder.AppendLine(audioList[i].key + ",");
 				}
 			}
 			builder.AppendLine(" } ");
 			//Debug.Log(builder.ToString());
-			System.IO.File.WriteAllText(Application.dataPath + "/Ea/Audio/Resources/" + className + fileType, builder.ToString());
+			System.IO.File.WriteAllText(Application.dataPath + "/KR/Audio/Resources/" + "GeneratedAudio.cs", builder.ToString());
 			//Debug.Log(Application.dataPath + "/Ea/Audio/Resources/EaAudioList.cs");
 			AssetDatabase.SaveAssets();
 			AssetDatabase.Refresh();
 		}
 #endif
-		public static void Play(EaAudioList audioName)
+		public static void Play(GeneratedAudio key, AudioCategory category = AudioCategory.SoundEffect)
 		{
 
 			for (int i = 0; i < instance.audioList.Count; i++)
 			{
-				if (instance.audioList[i].name == audioName.ToString())
+				if (instance.audioList[i].key == key.ToString())
 				{
 					//Debug.Log(instance.audioList[i]);
 					//Debug.Log(source);
-					source.PlayOneShot(instance.audioList[i]);
+					switch(category){
+						case AudioCategory.BackgroundMusic:
+							backgroundMusic.clip = instance.audioList[i].clip;
+							backgroundMusic.Play();
+							break;
+						case AudioCategory.SoundEffect:
+							soundEffect.PlayOneShot(instance.audioList[i].clip);
+
+							break;
+					}
 					return;
 				}
 			}

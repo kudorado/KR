@@ -1,26 +1,25 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿
 using UnityEngine;
 using System.IO;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
-using KR;
+
 namespace KR
 {
 	public class Device : KR.ScriptableSingleton<Device>
 	{
 
 #if UNITY_EDITOR
-		[MenuItem("Ea/File")]
+		[MenuItem("KR/File")]
 		public static void FileSetting()
 		{
-			KR.Scriptable.CreateAsset<Device>("Assets/Ea/File/Resources/");
+			KR.Scriptable.CreateAsset<Device>("Assets/KR/File/Resources/");
 		}
 #endif
 
 
-		public string fileDirectory = "/Ea/File/Files";
+		public string fileDirectory = "/KR/File/Files";
 		public string fileType = ".ea";
         
 

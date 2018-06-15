@@ -1,5 +1,5 @@
 ﻿using UnityEngine;
-using System.Collections;
+
 namespace KR
 {
 	public class Singleton<T> : MonoBehaviour
@@ -42,7 +42,11 @@ namespace KR
 				return _instance;
 			}
 		}
-	
+		public static void Init(){
+			if(_instance == null)
+				Debug.Log((instance.name + " Initialized.").color(Color.blue));
+			
+		}
 	}
 
 

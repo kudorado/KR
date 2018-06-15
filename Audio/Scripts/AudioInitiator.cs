@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿
 namespace KR
 {
 	public class AudioInitiator : KR.ManagerSingleton<AudioInitiator>
@@ -9,7 +7,7 @@ namespace KR
 		protected override void Awake()
 		{
 			base.Awake();
-			EaAudio.Init();
+			KR.Audio.Init();
 		}
 	}
 }

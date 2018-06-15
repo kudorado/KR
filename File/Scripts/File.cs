@@ -1,12 +1,10 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿
 using UnityEngine;
 using System.IO;
 using System.Runtime.Serialization.Formatters.Binary;
-using System.Runtime.Serialization;
 using System;
 using System.Threading;
-using KR;
+
 
 namespace KR
 {
@@ -35,6 +33,8 @@ namespace KR
 		{
 			string path = Device.filePath(typeof(T).Name.insert("(", ")") + fileName + Device.instance.fileType);
 			T @out = new T();
+			KR.Scripton<FileDelegate>.Init();
+
 			ThreadStart fileResult = new ThreadStart(() =>
 			{
 				BinaryFormatter bf = new BinaryFormatter();
@@ -122,7 +122,6 @@ namespace KR
 					bf.Serialize(fs, cryptor);
 
 				}
-				//			Debug.Log (typeof(T).Name.color(Color.red) + " saved!");	
 
 			});
 			fileSave.Start();
