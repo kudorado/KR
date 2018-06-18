@@ -255,6 +255,7 @@ namespace KR
 		void UninstallUnityAds()
 		{
 			UnInstallUnityAds();
+
 		}
 
 		[Button]
@@ -329,12 +330,15 @@ namespace KR
 			}
 		}
 
-		private const string UnityAdsImp = "UnityAds.aar", UnityAdsImpIOS = "UnityAdsUnityWrapper.mm";
 		void UnInstallUnityAds()
 		{
 			float progress = 0;
 			Uninstall(unityAdsFolder);
-			UnInstallLib(ref progress, target:  UnityAdsImp);
+			UnInstallLib(ref progress);
+			FINISH:
+
+            AssetDatabase.Refresh();
+            EditorUtility.ClearProgressBar();
 		}
 		void UnInstallUnityIAP()
 		{
@@ -355,7 +359,7 @@ namespace KR
 					FileUtil.DeleteFileOrDirectory(getPath(googlePlayResolver));
 				}
 			}
-			UnInstallLib(ref progress,except: UnityAdsImp);
+			UnInstallLib(ref progress);
 
 		FINISH:
 
@@ -365,7 +369,7 @@ namespace KR
 
 		}
 
-		void UnInstallLib(ref float progress,string target = "", string except = "")
+		void UnInstallLib(ref float progress)
 		{
 			string plugin = "Plugins";
 
@@ -381,8 +385,8 @@ namespace KR
 				{
 					//check if it have noisUnityAds file or directory
 					string currentPath = getPath(plugin + match);
-					ClearAndroidLibrary(plugins[i], match, target,  except, ref progress);
-					CleanIOSLibrary(plugins[i], match,target, except, ref progress);
+					ClearAndroidLibrary(plugins[i], match, ref progress);
+					CleanIOSLibrary(plugins[i], match, ref progress);
 					var subFiles = Directory.GetFiles(currentPath);
 					var subFolders = Directory.GetDirectories(currentPath);
 
@@ -436,7 +440,7 @@ namespace KR
 					FileUtil.DeleteFileOrDirectory(getPath(googlePlayResolver));
 				}
 			}
-			UnInstallLib(ref progress, except: UnityAdsImp);
+			UnInstallLib(ref progress);
 
 
 
@@ -446,13 +450,13 @@ namespace KR
 			EditorUtility.ClearProgressBar();
 
 		}
-		void ClearAndroidLibrary(string path, string match, string target,  string except , ref float progress)
+		void ClearAndroidLibrary(string path, string match,  ref float progress)
 		{
 			string[] pattern = { ".aar", ".jar" };
 			string platform = "/Android";
-			CleanLibrary(pattern, platform, path, match, target, except, ref progress);
+			CleanLibrary(pattern, platform, path, match, ref progress);
 		}
-		void CleanLibrary(string [] pattern, string platform, string path , string match, string target, string except, ref float progress){
+		void CleanLibrary(string [] pattern, string platform, string path , string match, ref float progress){
 			//string[] pattern = { ".m", ".mm", ".h" };
             List<string> toRemoves = new List<string>();
 			if (match == platform)
@@ -464,7 +468,7 @@ namespace KR
                 {
                     for (int p = 0; p < pattern.Length; p++)
                     {
-						if (subFiles[i].Contains(pattern[p]) && subFiles[i] != except && (target == "" || target == subFiles[i]))
+						if (subFiles[i].Contains(pattern[p]))
                         {
                             toRemoves.Add(subFiles[i]);
                         }
@@ -481,12 +485,12 @@ namespace KR
 
             }
 		}
-		void CleanIOSLibrary(string path, string match, string target, string except, ref float progress)
+		void CleanIOSLibrary(string path, string match, ref float progress)
 		{
 			string[] pattern = { ".m", ".mm", ".h" };
 
 			string platform = "/iOS";
-			CleanLibrary(pattern, platform, path, match, target, except, ref progress);
+			CleanLibrary(pattern, platform, path, match, ref progress);
 		}
 #endif
 
