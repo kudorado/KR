@@ -9,6 +9,15 @@ using System.Threading;
 namespace KR
 {
 
+
+	public class Serializable<T>: Serializable where T : Serializable , new(){
+		public static T instance{
+			get{
+				return _instance ?? (_instance = File.Open<T>());
+			}
+		}
+		private static T _instance;
+	}
 	[System.Serializable]
 	public class Serializable : ISerializable
 	{

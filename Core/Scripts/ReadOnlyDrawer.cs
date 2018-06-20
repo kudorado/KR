@@ -2,7 +2,7 @@
 using UnityEditor;
 #endif
 using UnityEngine;
-namespace KR.Editor
+namespace KR
 {
 	public class ReadOnlyAttribute : PropertyAttribute
 	{
