@@ -67,18 +67,23 @@ namespace KR
 		[Button]
 		private void GenerateAudio()
 		{
-			StringBuilder builder = new StringBuilder("public enum GeneratedAudio ");
-			builder.AppendLine(" { ");
+			StringBuilder builder = new StringBuilder();
+			builder.AppendLine("namespace KR ");
+            builder.AppendLine("{");
+            builder.AppendLine("\tpublic enum AudioList");
+            builder.AppendLine("\t{");
 			for (int i = 0; i < audioList.Count; i++)
 			{
 				if (audioList[i].clip != null && !string.IsNullOrEmpty(audioList[i].key))
 				{
-					builder.AppendLine(audioList[i].key + ",");
+					builder.AppendLine("\t\t "+audioList[i].key + ",");
 				}
 			}
-			builder.AppendLine(" } ");
+			builder.AppendLine("\t} ");
+            builder.AppendLine("} ");
+
 			//Debug.Log(builder.ToString());
-			System.IO.File.WriteAllText(Application.dataPath + "/KR/Audio/Resources/" + "GeneratedAudio.cs", builder.ToString());
+			System.IO.File.WriteAllText(Application.dataPath + "/KR/Audio/Resources/" + "AudioList.cs", builder.ToString());
 			//Debug.Log(Application.dataPath + "/Ea/Audio/Resources/EaAudioList.cs");
 			AssetDatabase.SaveAssets();
 			AssetDatabase.Refresh();

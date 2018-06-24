@@ -1,6 +1,10 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System;
+using System.Text;
+using System.IO;
+using System.Text.RegularExpressions;
+using Sirenix.OdinInspector;
 #if UNITY_EDITOR
 using UnityEditor;
 #endif
@@ -15,6 +19,8 @@ namespace KR
 			KR.Scriptable.CreateAsset<Pool>("Assets/KR/Pool/Resources/");
 		}
 
+
+
 		[MenuItem("KR/Pool/Init")]
 		public static void PoolInit()
 		{
@@ -26,11 +32,50 @@ namespace KR
 			UnityEditor.SceneManagement.EditorSceneManager.SaveScene(UnityEditor.SceneManagement.EditorSceneManager.GetActiveScene());
 			//EditorUtility.SetDirty(UnityEngine.SceneManagement.SceneManager.GetActiveScene());
 		}
+
+	      
+		[Button]
+        private void GeneratePoolList()
+        {
+			StringBuilder builder = new StringBuilder();
+			builder.AppendLine("namespace KR ");
+			builder.AppendLine("{");
+			builder.AppendLine("\tpublic enum PoolList");
+			builder.AppendLine("\t{");
+            //builder.AppendLine("\t{ ");
+			for (int i = 0; i < initData.Length; i++)
+            {
+				if (initData[i] != null)
+                {
+					if (initData[i].source != null)
+						builder.AppendLine("\t\t "+(initData[i].source.gameObject.name) + ",");
+                }
+            }
+            builder.AppendLine("\t} ");
+			builder.AppendLine("} ");
+
+
+			System.IO.File.WriteAllText(Application.dataPath + "/KR/Pool/Resources/PoolList.cs" , builder.ToString());
+            AssetDatabase.SaveAssets();
+            AssetDatabase.Refresh();
+        }
+
+    private string GetPoolListKey(string input)
+        {
+            if (Regex.IsMatch(input, @"^\d"))
+                input = "_" + input;
+
+
+
+            return input.Replace(" ", ""); ;
+        }
 #endif
 		public PoolData[] initData;
 		private Dictionary<string, int> poolHolder = new Dictionary<string, int>();
 		private List<GameObject[]> poolList = new List<GameObject[]>();
 		private GameObject inst;
+
+
 		public override void OnInitialized()
 		{
 			base.OnInitialized();
@@ -65,9 +110,9 @@ namespace KR
 				}
 			}
 		}
-		public static T GetPool<T>(string key, bool active = true, int reuseAmount = 5, Func<T, bool> reusePredicate = null) where T : Component
+		public static T GetPool<T>(PoolList key, bool active = true, int reuseAmount = 5, Func<T, bool> reusePredicate = null) where T : Component
 		{
-			int index = instance.poolHolder[key];
+			int index = instance.poolHolder[key.ToString()];
 			int length = instance.poolList[index].Length;
 			for (int i = 0; i < length; i++)
 			{
@@ -83,9 +128,9 @@ namespace KR
 			return GetPool<T>(key, active);
 		}
 
-		public static void CollectPool<T>(string key, int amount, Func<T, bool> exclude) where T : Component
+		public static void CollectPool<T>(PoolList key, int amount, Func<T, bool> exclude) where T : Component
 		{
-			int index = instance.poolHolder[key];
+			int index = instance.poolHolder[key.ToString()];
 			int length = amount.clamp(max: instance.poolList[index].Length);
 			//Debug.Log(length);
 
